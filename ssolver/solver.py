@@ -3,12 +3,19 @@ from collections import Counter
 
 import numpy as np
 
-
-def check_missing(array):
-    look_values = range(1, 10)
-    remain_values = [value for value in look_values if
-                     value not in array.flatten()]
-    return remain_values
+square = np.zeros((3, 3))
+line = [square for _ in range(3)]
+game = [line for _ in range(3)]
+game = np.asarray(game)
+game[0, 0] = [[0, 2, 1], [0, 3, 5], [0, 4, 8]]
+game[0, 1] = [[4, 7, 0], [6, 1, 8], [0, 0, 9]]
+game[0, 2] = [[5, 9, 8], [7, 2, 0], [0, 0, 0]]
+game[1, 0] = [[1, 0, 9], [2, 0, 0], [0, 0, 7]]
+game[1, 1] = [[0, 0, 0], [1, 0, 0], [0, 0, 6]]
+game[1, 2] = [[4, 7, 0], [8, 0, 3], [0, 0, 0]]
+game[2, 0] = [[8, 0, 0], [0, 0, 2], [0, 0, 0]]
+game[2, 1] = [[0, 0, 0], [7, 3, 0], [0, 6, 2]]
+game[2, 2] = [[0, 3, 0], [0, 0, 0], [9, 0, 7]]
 
 
 def print_sudoku(game_array):
@@ -22,6 +29,13 @@ def print_sudoku(game_array):
             print(row_template.format(*row) + '|')
         print(3 * line_template + '+')
     return None
+
+
+def check_missing(array):
+    look_values = range(1, 10)
+    remain_values = [value for value in look_values if
+                     value not in array.flatten()]
+    return remain_values
 
 
 def poss_dict(game):
@@ -41,42 +55,13 @@ def poss_dict(game):
     return poss
 
 
-def poss_square(poss):
-    ij = list(it.product(*2 * [[0, 1, 2]]))
-    for i, j in ij:
-        values = [v for k, v in poss.items() if
-                  k[0] == i and k[1] == j and len(v) > 0]
-        c = Counter(values)
-        unique_values = [k for k, v in c.items() if v == 1]
-        for ii, jj in ij:
-            if poss[i, j, ii, jj] in unique_values:
-                poss[i, j, ii, jj] = list(
-                        set(poss[i, j, ii, jj]) & set(unique_values))
-    return poss
-
-
 def fill_game(game):
     poss = poss_dict(game)
-    poss = poss_square(poss)
     for k, v in poss.items():
         if len(v) == 1 and game[k] == 0:
             game[k] = v[0]
     return game
 
-
-square = np.zeros((3, 3))
-line = [square for _ in range(3)]
-game = [line for _ in range(3)]
-game = np.asarray(game)
-game[0, 0] = [[0, 2, 1], [0, 3, 5], [0, 4, 8]]
-game[0, 1] = [[4, 7, 0], [6, 1, 8], [0, 0, 9]]
-game[0, 2] = [[5, 9, 8], [7, 2, 0], [0, 0, 0]]
-game[1, 0] = [[1, 0, 9], [2, 0, 0], [0, 0, 7]]
-game[1, 1] = [[0, 0, 0], [1, 0, 0], [0, 0, 6]]
-game[1, 2] = [[4, 7, 0], [8, 0, 3], [0, 0, 0]]
-game[2, 0] = [[8, 0, 0], [0, 0, 2], [0, 0, 0]]
-game[2, 1] = [[0, 0, 0], [7, 3, 0], [0, 6, 2]]
-game[2, 2] = [[0, 3, 0], [0, 0, 0], [9, 0, 7]]
 
 game = fill_game(game)
 print_sudoku(game)
