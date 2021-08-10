@@ -4,13 +4,6 @@ from collections import Counter
 import numpy as np
 
 
-def get_all_opts():
-    keys = list(it.product(*4 * [[0, 1, 2]]))
-    values = list(range(1, 10))
-    opts = {key: values for key in keys}
-    return opts
-
-
 def check_missing(array):
     """
     Check missing numbers of an array.
@@ -48,7 +41,7 @@ class Sudoku:
         if not game:
             game = mockup_game()
         self.game = game
-        self.options = get_all_opts()
+        self.options = self._gen_all_opts()
 
     def print_sudoku(self):
         """
@@ -65,33 +58,32 @@ class Sudoku:
             print(3 * line_template + '+')
         return None
 
-    def check_missing_row(self, i, ii):
-        return check_missing(self.game[i, :, ii, :])
+    @staticmethod
+    def _get_valid_numbers(array):
+        clean_numbers = [int(number) for number in array.flatten()
+                         if number in range(1, 10)]
+        return sorted(clean_numbers)
 
-    def check_missing_column(self, j, jj):
-        return check_missing(self.game[:, j, :, jj])
+    @staticmethod
+    def _gen_all_opts():
+        """
+        Create a dict with all possible numbers
+        (1 to 9) for each possible address
+        :return: dict listing all possible options
+        """
+        keys = list(it.product(*4 * [[0, 1, 2]]))
+        values = list(range(1, 10))
+        opts = {key: values for key in keys}
+        return opts
 
-    def check_missing_square(self, i, j):
-        return check_missing(self.game[i, j, :, :])
+    def get_row(self, i, ii):
+        numbers = self.game[i, :, ii, :]
+        return self._get_valid_numbers(numbers)
 
+    def get_column(self, j, jj):
+        numbers = self.game[:, j, :, jj]
+        return self._get_valid_numbers(numbers)
 
-def poss_dict(game):
-    for location in poss.keys():
-        i, j, ii, jj = location
-        if game[location] != 0:
-            poss[location] = []
-            continue
-        missing_square = set(check_missing(game[i, j, :, :]))
-        missing_row = set(check_missing(game[i, :, ii, :]))
-        missing_column = set(check_missing(game[:, j, :, jj]))
-        poss[location] = list(set.intersection(missing_square, missing_row,
-                                               missing_column))
-    return poss
-
-
-def fill_game(game):
-    poss = poss_dict(game)
-    for k, v in poss.items():
-        if len(v) == 1 and game[k] == 0:
-            game[k] = v[0]
-    return game
+    def get_square(self, i, j):
+        numbers = self.game[i, j, :, :]
+        return self._get_valid_numbers(numbers)
