@@ -23,24 +23,24 @@ def mockup_game():
     line = [square for _ in range(3)]
     game = [line for _ in range(3)]
     game = np.asarray(game)
-    # game[0, 0] = [[0, 2, 1], [0, 3, 5], [0, 4, 8]]
-    # game[0, 1] = [[4, 7, 0], [6, 1, 8], [0, 0, 9]]
-    # game[0, 2] = [[5, 9, 8], [7, 2, 0], [0, 0, 0]]
-    # game[1, 0] = [[1, 0, 9], [2, 0, 0], [0, 0, 7]]
-    # game[1, 1] = [[0, 0, 0], [1, 0, 0], [0, 0, 6]]
-    # game[1, 2] = [[4, 7, 0], [8, 0, 3], [0, 0, 0]]
-    # game[2, 0] = [[8, 0, 0], [0, 0, 2], [0, 0, 0]]
-    # game[2, 1] = [[0, 0, 0], [7, 3, 0], [0, 6, 2]]
-    # game[2, 2] = [[0, 3, 0], [0, 0, 0], [9, 0, 7]]
-    game[0, 0] = [[3, 7, 0], [0, 2, 9], [0, 0, 0]]
-    game[0, 1] = [[1, 4, 0], [6, 7, 3], [0, 9, 0]]
-    game[0, 2] = [[9, 6, 0], [1, 0, 0], [0, 7, 4]]
-    game[1, 0] = [[0, 0, 2], [7, 4, 0], [1, 0, 0]]
-    game[1, 1] = [[5, 0, 0], [0, 0, 0], [0, 2, 0]]
-    game[1, 2] = [[0, 0, 0], [0, 0, 8], [7, 0, 0]]
-    game[2, 0] = [[9, 0, 0], [0, 5, 7], [6, 1, 0]]
-    game[2, 1] = [[7, 6, 2], [3, 0, 1], [0, 0, 0]]
-    game[2, 2] = [[0, 3, 1], [6, 0, 9], [0, 0, 7]]
+    # game[0, 0] = [[3, 7, 0], [0, 2, 9], [0, 0, 0]]
+    # game[0, 1] = [[1, 4, 0], [6, 7, 3], [0, 9, 0]]
+    # game[0, 2] = [[9, 6, 0], [1, 0, 0], [0, 7, 4]]
+    # game[1, 0] = [[0, 0, 2], [7, 4, 0], [1, 0, 0]]
+    # game[1, 1] = [[5, 0, 0], [0, 0, 0], [0, 2, 0]]
+    # game[1, 2] = [[0, 0, 0], [0, 0, 8], [7, 0, 0]]
+    # game[2, 0] = [[9, 0, 0], [0, 5, 7], [6, 1, 0]]
+    # game[2, 1] = [[7, 6, 2], [3, 0, 1], [0, 0, 0]]
+    # game[2, 2] = [[0, 3, 1], [6, 0, 9], [0, 0, 7]]
+    game[0, 0] = [[3, 7, 9], [8, 0, 0], [2, 0, 0]]
+    game[0, 1] = [[0, 0, 0], [4, 2, 0], [0, 1, 0]]
+    game[0, 2] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    game[1, 0] = [[0, 5, 0], [0, 0, 7], [0, 0, 0]]
+    game[1, 1] = [[0, 0, 0], [0, 0, 0], [0, 6, 5]]
+    game[1, 2] = [[0, 2, 0], [0, 0, 8], [0, 0, 4]]
+    game[2, 0] = [[0, 0, 0], [0, 8, 0], [0, 0, 0]]
+    game[2, 1] = [[9, 0, 0], [3, 0, 0], [0, 0, 2]]
+    game[2, 2] = [[0, 0, 0], [7, 0, 0], [3, 9, 0]]
     return game
 
 
@@ -141,13 +141,18 @@ class Sudoku:
         self.options[coord] = [value]
         return self.game[i, j, ii, jj]
 
-    def fill_by_options(self):
+    def fill_by_options(self, select_random=False):
         c = 0
         for coord, value in self.options.items():
             if len(value) == 1:
                 c += 1
                 v = value[0]
                 self.update_game(v, coord)
+            elif select_random and len(value) > 1:
+                c += 1
+                v = value[0]
+                self.update_game(v, coord)
+                break
         self.update_opts()
         return c
 
@@ -158,4 +163,14 @@ class Sudoku:
             c += add
             if add == 0:
                 break
-        return f'Filled {c} option(s)'
+        return c
+
+    def random_filler(self):
+        filled = self.filler()
+        if filled > 0:
+            print(f'Filled {filled} positions')
+        while filled == 0:
+            print('random placed')
+            self.fill_by_options(select_random=True)
+            filled = self.filler()
+        return None
