@@ -1,176 +1,79 @@
-import itertools as it
-from collections import Counter
-
-import numpy as np
-
-
-def check_missing(array):
-    """
-    Check missing numbers of an array.
-    The array can be a row, column or a square,
-    where each one has to have 1 to 9, with no duplicated number.
-    :param array:
-    :return: list of missing numbers
-    """
-    look_values = range(1, 10)
-    remain_values = [value for value in look_values if
-                     value not in array.flatten()]
-    return remain_values
-
-
-def mockup_game():
-    square = np.zeros((3, 3))
-    line = [square for _ in range(3)]
-    game = [line for _ in range(3)]
-    game = np.asarray(game)
-    # game[0, 0] = [[3, 7, 0], [0, 2, 9], [0, 0, 0]]
-    # game[0, 1] = [[1, 4, 0], [6, 7, 3], [0, 9, 0]]
-    # game[0, 2] = [[9, 6, 0], [1, 0, 0], [0, 7, 4]]
-    # game[1, 0] = [[0, 0, 2], [7, 4, 0], [1, 0, 0]]
-    # game[1, 1] = [[5, 0, 0], [0, 0, 0], [0, 2, 0]]
-    # game[1, 2] = [[0, 0, 0], [0, 0, 8], [7, 0, 0]]
-    # game[2, 0] = [[9, 0, 0], [0, 5, 7], [6, 1, 0]]
-    # game[2, 1] = [[7, 6, 2], [3, 0, 1], [0, 0, 0]]
-    # game[2, 2] = [[0, 3, 1], [6, 0, 9], [0, 0, 7]]
-    game[0, 0] = [[3, 7, 9], [8, 0, 0], [2, 0, 0]]
-    game[0, 1] = [[0, 0, 0], [4, 2, 0], [0, 1, 0]]
-    game[0, 2] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    game[1, 0] = [[0, 5, 0], [0, 0, 7], [0, 0, 0]]
-    game[1, 1] = [[0, 0, 0], [0, 0, 0], [0, 6, 5]]
-    game[1, 2] = [[0, 2, 0], [0, 0, 8], [0, 0, 4]]
-    game[2, 0] = [[0, 0, 0], [0, 8, 0], [0, 0, 0]]
-    game[2, 1] = [[9, 0, 0], [3, 0, 0], [0, 0, 2]]
-    game[2, 2] = [[0, 0, 0], [7, 0, 0], [3, 9, 0]]
-    return game
+import itertools
 
 
 class Sudoku:
-
-    def __init__(self, game=None):
-        if not game:
-            game = mockup_game()
-        self.game = game
-        self.options = self._gen_all_opts()
-        self.update_opts()
-
-    def update_opts(self):
-        coords = self.options.keys()
-        for coord in coords:
-            i, j, ii, jj = coord
-            value = self.game[i, j, ii, jj]
-            if value == 0:
-                poss = self.check_opts_rule_one(coord)
-                self.options[coord] = poss
-                poss = self.check_opts_rule_two(coord)
-                self.options[coord] = poss
-            else:
-                self.options[coord] = []
-        return None
-
-    def check_opts_rule_one(self, coord):
-        i, j, ii, jj = coord
-        opts = self.options[coord]
-        row = self.get_row(i, ii)
-        column = self.get_column(j, jj)
-        square = self.get_square(i, j)
-        denied_list = row + column + square
-        poss = [num for num in opts if num not in denied_list]
-        return poss
-
-    def check_opts_rule_two(self, coord):
-        i, j, ii, jj = coord
-        original_poss = self.options[coord]
-        square_addrs = [a for a in self.options.keys()
-                        if a[0] == i and a[1] == j and a != coord]
-        poss = []
-        for address in square_addrs:
-            poss += self.options[address]
-        unique = [p for p in original_poss if p not in poss]
-        if len(unique) == 1:
-            original_poss = unique
-        return original_poss
-
-    def print_sudoku(self):
-        """
-        Print sudoku game as a string in the terminal
-        """
-        template = '|' + 3 * '{:^3.0f}'
-        row_template = 3 * template
-        line_template = '+' + 9 * '-'
-        print(3 * line_template + '+')
-        for i in range(3):
-            for j in range(3):
-                row = self.game[i, :, j, :].flatten()
-                print(row_template.format(*row) + '|')
-            print(3 * line_template + '+')
-        return None
+    def __init__(self, game_values=None):
+        self.game = self.create_empty_game()
+        if game_values:
+            self.import_game(game_values)
+        self.show()
 
     @staticmethod
-    def _get_valid_numbers(array):
-        clean_numbers = [int(number) for number in array.flatten()
-                         if number in range(1, 10)]
-        return sorted(clean_numbers)
+    def create_empty_game():
+        game = [[0] * 9 for _ in range(9)]
+        return game
 
-    @staticmethod
-    def _gen_all_opts():
-        """
-        Create a dict with all possible numbers
-        (1 to 9) for each possible address
-        :return: dict listing all possible options
-        """
-        keys = list(it.product(*4 * [[0, 1, 2]]))
-        values = list(range(1, 10))
-        opts = {key: values for key in keys}
-        return opts
+    def update(self, row, column, value):
+        self.game[row][column] = value
+        return self.game[row][column]
 
-    def get_row(self, i, ii):
-        numbers = self.game[i, :, ii, :]
-        return self._get_valid_numbers(numbers)
+    def get_value(self, row, column):
+        return self.game[row][column]
 
-    def get_column(self, j, jj):
-        numbers = self.game[:, j, :, jj]
-        return self._get_valid_numbers(numbers)
+    def get_row_values(self, row):
+        return self.game[row]
 
-    def get_square(self, i, j):
-        numbers = self.game[i, j, :, :]
-        return self._get_valid_numbers(numbers)
+    def get_column_values(self, column):
+        return [row_values[column] for row_values in self.game]
 
-    def update_game(self, value, coord):
-        i, j, ii, jj = coord
-        self.game[i, j, ii, jj] = value
-        self.options[coord] = [value]
-        return self.game[i, j, ii, jj]
+    def get_square_values(self, row, column):
+        trunc_row = (row // 3)*3
+        trunc_column = (column // 3)*3
+        rows = range(trunc_row, trunc_row + 3)
+        columns = range(trunc_column, trunc_column + 3)
+        addresses = itertools.product(rows, columns)
+        return [self.get_value(row, column) for row, column in addresses]
 
-    def fill_by_options(self, select_random=False):
-        c = 0
-        for coord, value in self.options.items():
-            if len(value) == 1:
-                c += 1
-                v = value[0]
-                self.update_game(v, coord)
-            elif select_random and len(value) > 1:
-                c += 1
-                v = value[0]
-                self.update_game(v, coord)
-                break
-        self.update_opts()
-        return c
+    def import_game(self, game_values):
+        clean_game = [int(number) for number in game_values
+                      if number.isnumeric()]
+        clean_game.reverse()
+        for i in range(9):
+            for j in range(9):
+                self.update(i, j, clean_game.pop())
+        return self.game
 
-    def filler(self):
-        c = 0
-        while True:
-            add = self.fill_by_options()
-            c += add
-            if add == 0:
-                break
-        return c
+    def check_valid_insertion(self, row, column, value):
+        if value in self.get_row_values(row):
+            return False
+        if value in self.get_column_values(column):
+            return False
+        if value in self.get_square_values(row, column):
+            return False
+        return True
 
-    def random_filler(self):
-        filled = self.filler()
-        if filled > 0:
-            print(f'Filled {filled} positions')
-        while filled == 0:
-            print('random placed')
-            self.fill_by_options(select_random=True)
-            filled = self.filler()
-        return None
+    def solve(self):
+        for row in range(9):
+            for column in range(9):
+                if self.get_value(row, column) == 0:
+                    for value in range(1, 10):
+                        if self.check_valid_insertion(row, column, value):
+                            self.update(row, column, value)
+                            self.solve()
+                            self.update(row, column, 0)
+                    return
+        print('Completed')
+        self.show()
+        input('More?')
+
+    def show(self):
+        for row in self.game:
+            print(row)
+
+
+if __name__ == '__main__':
+    game_values = \
+        "000600005439000000006074000007000900090000087000001000604000000058030002000580070"
+    game = Sudoku(game_values)
+    game.solve()
+
