@@ -1,6 +1,6 @@
 import unittest
 
-import ssolver.solver as s2
+import solver.solver as s2
 
 
 class MyTestCase(unittest.TestCase):
