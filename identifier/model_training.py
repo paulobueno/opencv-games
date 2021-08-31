@@ -23,7 +23,7 @@ for file_name in os.listdir('../images_database/'):
 
 X = np.array([data[1] for data in dataset])
 y = np.array([data[0] for data in dataset])
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y)
 print('Training data and target sizes: \n{}, {}'.format(X_train.shape, y_train.shape))
 print('Test data and target sizes: \n{}, {}'.format(X_test.shape, y_test.shape))
 
