@@ -1,10 +1,10 @@
 import unittest
 
-import identifier.ident_nums
+import identifier.database_creator
 
 
 class MyTestCase(unittest.TestCase):
-    game = identifier.ident_nums.Identify('sudoku_example.jpg')
+    game = identifier.database_creator.Identify('sudoku_example.jpg')
 
     def test_image_loaded(self):
         self.game.load_image()

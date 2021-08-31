@@ -36,33 +36,42 @@ class Identify:
         min_rho = min(smooth_rho_list)
         max_rho = max(smooth_rho_list)
         self.loaded_image = self.loaded_image[min_rho:max_rho, min_rho:max_rho]
-        self.rho = smooth_rho_list[1] - smooth_rho_list[0]
+        self.rho = int(np.median(
+            [smooth_rho_list[k] - smooth_rho_list[k - 1] for k, v in enumerate(smooth_rho_list[1:], start=1)]))
 
     def preview(self, test=False, number=None, save=False):
-        msg = 'Image Preview'
+        name = 'Game Preview'
+        cv.namedWindow(name, cv.WINDOW_NORMAL)
+        cv.moveWindow(name, 100, 100)
+        cv.resizeWindow(name, 500, 500)
         if test:
-            msg = '## TEST MODE ##: Type y to finish this test'
+            name = '## TEST MODE ##: Type y to finish this test'
         if number:
+            name = 'Number Preview'
             xy0 = (self.rho * number[0], self.rho * number[1])
             xy1 = (xy0[0] + self.rho, xy0[1] + self.rho)
             img = self.loaded_image[xy0[0]:xy1[0], xy0[1]:xy1[1]]
-            cv.imshow(msg, img)
+            cv.namedWindow(name, cv.WINDOW_NORMAL)
+            cv.moveWindow(name, 800, 100)
+            cv.resizeWindow(name, 100, 100)
+            cv.imshow(name, img)
         else:
             img = self.loaded_image
-            cv.imshow(msg, self.loaded_image)
+            cv.imshow(name, self.loaded_image)
         k = cv.waitKeyEx(0)
         if save:
             main_script_dir = os.path.abspath(__file__ + '/../..')
-            rel_path = 'images_database/' + chr(k) + '_' + str(random.randint(0, 100)) + '.jpg'
+            rel_path = 'images_database/' + chr(k) + '_' + str(random.randint(0, 1000)) + '.jpg'
             image_path = os.path.join(main_script_dir, rel_path)
             cv.imwrite(image_path, img)
-        cv.destroyAllWindows()
         return k
 
 
 if __name__ == '__main__':
     # game = Identify('sudoku_example.jpg')
-    game = Identify('sudoku_example2.png')
-    game.preview(number=None)
-    for i in itertools.product(range(9), range(9)):
-        game.preview(number=i, save=True)
+    for num in range(38, 45):
+        game = Identify(str(num) + '.png')
+        game.preview()
+        for i in itertools.product(range(9), range(9)):
+            game.preview(number=i, save=True)
+    cv.destroyAllWindows()
