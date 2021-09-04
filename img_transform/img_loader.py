@@ -12,7 +12,6 @@ class Identify:
         if auto_load:
             self.load_image()
             self.crop_image()
-            # self.add_red_lines()
 
     def load_image(self):
         main_script_dir = os.path.abspath(__file__ + '/../..')
@@ -35,17 +34,8 @@ class Identify:
             rho = [line[0][0] for line in lines]
         return rho
 
-    def get_clean_x_rho(self):
-        rho_list = self.gen_lines_rho(axis=1)
-        rho_list.sort()
-        rho_diffs = []
-        for i in range(len(rho_list) - 1):
-            if rho_list[i + 1] - rho_list[i] <= 5:
-                rho_list[i] = rho_list[i + 1]
-        return list(set(rho_list))
-
-    def get_clean_y_rho(self):
-        rho_list = self.gen_lines_rho(axis=0)
+    def get_clean_rho(self, axis):
+        rho_list = self.gen_lines_rho(axis=axis)
         rho_list.sort()
         for i in range(len(rho_list) - 1):
             if rho_list[i + 1] - rho_list[i] <= 5:
@@ -65,8 +55,8 @@ class Identify:
         return median
 
     def crop_image(self):
-        clean_x = self.get_clean_x_rho()
-        clean_y = self.get_clean_y_rho()
+        clean_x = self.get_clean_rho(axis=1)
+        clean_y = self.get_clean_rho(axis=0)
         if len(clean_y) + len(clean_x) >= 20:
             start_h = int(min(clean_y))
             end_h = int(max(clean_y))

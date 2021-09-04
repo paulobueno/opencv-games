@@ -1,11 +1,11 @@
 import itertools
 import numpy as np
-import img_loader as il
+import img_transform.img_loader as il
 import cv2 as cv
 from joblib import dump, load
 from sklearn import svm
 
-game = il.Identify('7.png')
+game = il.Identify('11.png')
 y_predicted = []
 clf = load('model_1.svm')
 
@@ -15,9 +15,13 @@ for number_coord in itertools.product(range(9), range(9)):
     img = np.where(img < 200, 0, img)
     flat_img = img.flatten()
     predicted = clf.predict([flat_img])
-    cv.imshow('Transformed', img)
-    cv.imshow('Predicted: ' + str(predicted[0]), game.get_number(number=number_coord))
-    cv.waitKey(0)
+    name = 'Transformed'
+    cv.imshow(name, img)
+    cv.moveWindow(name, 100, 200)
+    name = 'Predicted: ' + str(predicted[0])
+    cv.imshow(name, game.get_number(number=number_coord))
+    cv.moveWindow(name, 500, 200)
+    cv.waitKey(500)
     cv.destroyAllWindows()
     y_predicted.append(predicted)
     #

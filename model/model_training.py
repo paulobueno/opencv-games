@@ -18,8 +18,9 @@ for file_name in os.listdir('../images_database/'):
     img = np.where(img < 200, 0, img)
     cv.imshow('Value: ' + file_name[0], img)
     cv.waitKey(2)
-    flat_img = img.flatten()
-    dataset.append((int(file_name[0]), flat_img))
+    if int(file_name[0]) != 0:
+        flat_img = img.flatten()
+        dataset.append((int(file_name[0]), flat_img))
 
 X = np.array([data[1] for data in dataset])
 y = np.array([data[0] for data in dataset])
