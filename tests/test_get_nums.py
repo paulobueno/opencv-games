@@ -1,6 +1,7 @@
 import itertools
 import unittest
 import img_transform.img_loader as ii
+import model.game_identifier as gi
 
 
 class MyTestCase(unittest.TestCase):
@@ -41,6 +42,14 @@ class MyTestCase(unittest.TestCase):
         for number_coord in itertools.product(range(9), range(9)):
             number = len(self.game.get_number(number_coord))
             self.assertGreater(number, 0)
+
+    def test_number_identification(self):
+        numbers = [int(number) for number in self.game_numbers if number.isnumeric()]
+        for k, v in enumerate(numbers):
+            coordinates = (k // 8, k % 8)
+            number_image = self.game.get_number(coordinates)
+            predicted_number = gi.predict(number_image)
+            self.assertEqual(v, predicted_number)
 
 
 if __name__ == '__main__':

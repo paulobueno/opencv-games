@@ -1,3 +1,5 @@
+import itertools
+
 import cv2 as cv
 import os
 from sklearn.model_selection import train_test_split
@@ -18,7 +20,7 @@ for file_name in os.listdir('../images_database/'):
     img = np.where(img < 200, 0, img)
     cv.imshow('Value: ' + file_name[0], img)
     cv.waitKey(2)
-    if int(file_name[0]) != 0:
+    if int(file_name[0]) >= 0:
         flat_img = img.flatten()
         dataset.append((int(file_name[0]), flat_img))
 

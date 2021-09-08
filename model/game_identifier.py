@@ -1,29 +1,44 @@
 import itertools
+import os
 import numpy as np
 import img_transform.img_loader as il
 import cv2 as cv
-from joblib import dump, load
-from sklearn import svm
+from joblib import load
 
-game = il.Identify('11.png')
-y_predicted = []
-clf = load('model_1.svm')
+path = os.path.abspath(__file__ + '/../model_1.svm')
+clf = load(path)
 
-for number_coord in itertools.product(range(9), range(9)):
-    img = cv.cvtColor(game.get_number(number=number_coord), cv.COLOR_BGR2GRAY)
+
+def transform_image(number_img):
+    img = cv.cvtColor(number_img, cv.COLOR_BGR2GRAY)
     img = cv.resize(img, (16, 16), interpolation=cv.INTER_LINEAR)
     img = np.where(img < 200, 0, img)
     flat_img = img.flatten()
-    predicted = clf.predict([flat_img])
-    name = 'Transformed'
-    cv.imshow(name, img)
-    cv.moveWindow(name, 100, 200)
-    name = 'Predicted: ' + str(predicted[0])
-    cv.imshow(name, game.get_number(number=number_coord))
-    cv.moveWindow(name, 500, 200)
-    cv.waitKey(500)
-    cv.destroyAllWindows()
-    y_predicted.append(predicted)
-    #
-    # for i in range(9):
-    #     print(y_predicted[i * 9:9 + (i * 9)])
+    return flat_img
+
+
+def predict(number_image):
+    flat_img = transform_image(number_image)
+    predicted_number = clf.predict([flat_img])
+    return predicted_number[0]
+
+
+def get_numbers(game_name):
+    game = il.Identify(game_name)
+    predict_func = []
+    for coordinate in itertools.product(range(9), range(9)):
+        number_image = game.get_number(coordinate)
+        predict_func.append(predict(number_image))
+    return predict_func
+
+
+def get_game_string_numbers(game_name):
+    numbers_list = get_numbers(game_name)
+    return ''.join([str(number) for number in numbers_list])
+
+
+if __name__ == '__main__':
+    game_file = '39.png'
+    numbers = get_numbers(game_file)
+    print(numbers)
+    game = il.Identify(game_file)

@@ -9,6 +9,7 @@ class Identify:
     def __init__(self, file_name, auto_load=True):
         self.image_name = file_name
         self.loaded_image = None
+        self.game_numbers = []
         if auto_load:
             self.load_image()
             self.crop_image()
@@ -80,25 +81,26 @@ class Identify:
         rho_x = int(x0 / 9)
         xy0 = (rho_y * number[0], rho_x * number[1])
         xy1 = (xy0[0] + rho_y, xy0[1] + rho_x)
-        return self.loaded_image[xy0[0]:xy1[0], xy0[1]:xy1[1]]
+        return self.loaded_image[xy0[0]:xy1[0], xy0[1]:xy1[1]][10:40, 10:40]
 
-    def preview(self, test=False, number=None, save=False):
-        name = 'Game Preview'
-        cv.namedWindow(name, cv.WINDOW_NORMAL)
-        cv.moveWindow(name, 100, 100)
-        cv.resizeWindow(name, 500, 500)
+    def preview(self, test=False, number=None, save=False, window_name=None):
+        if window_name is None:
+            window_name = 'Game Preview'
+        cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+        cv.moveWindow(window_name, 100, 100)
+        cv.resizeWindow(window_name, 500, 500)
         if test:
-            name = '## TEST MODE ##: Type y to finish this test'
+            window_name = '## TEST MODE ##: Type y to finish this test'
         if number:
-            name = 'Number Preview'
-            cv.namedWindow(name, cv.WINDOW_NORMAL)
-            cv.moveWindow(name, 800, 100)
-            cv.resizeWindow(name, 100, 100)
+            window_name = 'Number Preview'
+            cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+            cv.moveWindow(window_name, 800, 100)
+            cv.resizeWindow(window_name, 100, 100)
             img = self.get_number(number)
-            cv.imshow(name, img)
+            cv.imshow(window_name, img)
         else:
             img = self.loaded_image
-            cv.imshow(name, self.loaded_image)
+            cv.imshow(window_name, self.loaded_image)
         k = cv.waitKeyEx(0)
         if save:
             main_script_dir = os.path.abspath(__file__ + '/../..')
