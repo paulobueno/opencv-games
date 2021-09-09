@@ -1,12 +1,11 @@
 import itertools
-
+import collections
 
 class Sudoku:
     def __init__(self, game_values=None):
         self.game = self.create_empty_game()
         if game_values:
             self.import_game(game_values)
-        self.show()
 
     @staticmethod
     def create_empty_game():
@@ -27,8 +26,8 @@ class Sudoku:
         return [row_values[column] for row_values in self.game]
 
     def get_square_values(self, row, column):
-        trunc_row = (row // 3)*3
-        trunc_column = (column // 3)*3
+        trunc_row = (row // 3) * 3
+        trunc_column = (column // 3) * 3
         rows = range(trunc_row, trunc_row + 3)
         columns = range(trunc_column, trunc_column + 3)
         addresses = itertools.product(rows, columns)
@@ -62,13 +61,27 @@ class Sudoku:
                             self.solve()
                             self.update(row, column, 0)
                     return
-        print('Completed')
         self.show()
-        input('More?')
 
     def show(self):
         for row in self.game:
             print(row)
+
+    def is_valid_game(self):
+        def duplicated_number(values):
+            for k, v in collections.Counter(values).items():
+                if k != 0 and v > 1:
+                    return True
+
+        for i in range(9):
+            if duplicated_number(self.get_row_values(i)):
+                return False
+            if duplicated_number(self.get_column_values(i)):
+                return False
+            for j in range(9):
+                if duplicated_number(self.get_square_values(i, j)):
+                    return False
+        return True
 
 
 if __name__ == '__main__':
@@ -76,4 +89,3 @@ if __name__ == '__main__':
         "000600005439000000006074000007000900090000087000001000604000000058030002000580070"
     game = Sudoku(game_values)
     game.solve()
-

@@ -16,6 +16,12 @@ class MyTestCase(unittest.TestCase):
     000700530
     """
 
+    def setUp(self) -> None:
+        self.game = s2.Sudoku(self.game_test)
+
+    def tearDown(self) -> None:
+        self.game = None
+
     def test_create_empty_game(self):
         game = s2.Sudoku().game
         result = True
@@ -37,20 +43,23 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(value, test_value)
 
     def test_import_game(self):
-        game = s2.Sudoku(self.game_test)
-        self.assertEqual(9, game.get_value(1, 0))
+        self.assertEqual(9, self.game.get_value(1, 0))
 
     def test_check_valid_insertion_row(self):
-        game = s2.Sudoku(self.game_test)
-        self.assertEqual(False, game.check_valid_insertion(0, 0, 2))
+        self.assertEqual(False, self.game.check_valid_insertion(0, 0, 2))
 
     def test_check_valid_insertion_column(self):
-        game = s2.Sudoku(self.game_test)
-        self.assertEqual(False, game.check_valid_insertion(1, 1, 6))
+        self.assertEqual(False, self.game.check_valid_insertion(1, 1, 6))
 
     def test_check_valid_insertion_square(self):
-        game = s2.Sudoku(self.game_test)
-        self.assertEqual(False, game.check_valid_insertion(1, 1, 4))
+        self.assertEqual(False, self.game.check_valid_insertion(1, 1, 4))
+
+    def test_is_invalid_game(self):
+        self.game.game = [[1] * 9] + self.game.game[1:]
+        self.assertFalse(self.game.is_valid_game())
+
+    def test_is_valid_game(self):
+        self.assertTrue(self.game.is_valid_game())
 
 
 if __name__ == '__main__':
