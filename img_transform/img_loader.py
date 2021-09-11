@@ -111,7 +111,7 @@ class Identify:
 
 
 if __name__ == '__main__':
-    for num in range(2, 45):
+    for num in range(1, 11):
         game = Identify(str(num) + '.png')
         game.add_red_lines()
         k = game.preview()

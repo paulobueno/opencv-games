@@ -38,7 +38,7 @@ def get_game_string_numbers(game_name):
 
 
 if __name__ == '__main__':
-    game_file = '39.png'
+    game_file = '2.png'
     numbers = get_numbers(game_file)
     print(numbers)
     game = il.Identify(game_file)
